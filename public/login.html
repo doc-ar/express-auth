@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      form {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #218838;
+      }
+      .message {
+        margin-top: 20px;
+        text-align: center;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Login</h1>
+    <form id="loginForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required />
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required />
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="message" id="message"></div>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          // Reference the messageDiv element
+          const messageDiv = document.getElementById("message");
+
+          try {
+            const response = await fetch("/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                username: username,
+                password: password,
+              }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              document.body.innerHTML = `
+            <div style="text-align: center; margin-top: 50px;">
+              <h1>Welcome, ${username}!</h1>
+            </div>
+          `;
+            } else {
+              messageDiv.style.color = "red";
+              messageDiv.textContent = `Error: ${result.message}. Redirecting to Register Page`;
+              setTimeout(() => {
+                window.location.href = "/register";
+              }, 2000);
+            }
+          } catch (error) {
+            if (messageDiv) {
+              messageDiv.style.color = "red";
+              messageDiv.textContent = `Unexpected error: ${error.message}`;
+            } else {
+              alert(`Unexpected error: ${error.message}`);
+            }
+          }
+        });
+    </script>
+  </body>
+</html>
