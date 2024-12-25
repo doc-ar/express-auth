@@ -2,6 +2,14 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const User = require("../models/userModel.js");
 
+exports.sessionStatus = (req, res) => {
+  if (req.session.userId) {
+    res.json({ loggedIn: true, username: req.session.username });
+  } else {
+    res.json({ loggedIn: false });
+  }
+};
+
 exports.loginForm = async (req, res) => {
   res.sendFile(path.resolve(path.join(__dirname, "../public/login.html")));
 };
@@ -38,7 +46,11 @@ exports.loginUser = async (req, res) => {
       return res.status(401).json({ error: "Incorrect password" });
     }
 
-    // Return success response with user data
+    // Create a session and store user ID
+    req.session.userId = user._id;
+    req.session.username = user.username;
+
+    // Return success response
     res.status(200).json({ message: "Login successful", user });
   } catch (error) {
     res.status(500).json({
